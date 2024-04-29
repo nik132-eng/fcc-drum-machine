@@ -1,55 +1,63 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import './Drumpad.css'; // Import CSS file for styling
 
-interface AudioElementMap {
-  [key: string]: HTMLAudioElement;
+interface DrumButtonProps {
+  id: string;
+  audioSrc: string;
 }
 
-const Drumpad: React.FC = () => {
-  const [audioElements, setAudioElements] = useState<AudioElementMap>({});
+const DrumButton: React.FC<DrumButtonProps> = ({ id, audioSrc }) => {
+  const audioRef = useRef<HTMLAudioElement>(null);
 
-  useEffect(() => {
-    const buttons = document.querySelectorAll('button');
-    const audioElementsData: AudioElementMap = {};
-    buttons.forEach((button) => {
-      const audioElement = new Audio(`./audio/${button.id}.mp3`);
-      audioElementsData[button.id] = audioElement;
-    });
-    setAudioElements(audioElementsData);
-
-    const playSound = (e: KeyboardEvent) => {
-      const buttonId = e.key.toUpperCase();
-      console.log("🚀 ~ playSound ~ buttonId:", buttonId)
-      const audioElement = audioElements[buttonId];
-      console.log("🚀 ~ playSound ~ audioElement:", audioElement)
-      if (!audioElement) return;
-      audioElement.currentTime = 0;
-      audioElement.play();
-    };
-
-    window.addEventListener('keydown', playSound);
-    return () => {
-      window.removeEventListener('keydown', playSound);
-    };
-  }, []); // empty dependency array to only run the effect once on mount
+  const playSound = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play();
+    }
+  };
 
   return (
-    <div id="drum-machine">
-      <div id="display">
-        <div>
-          <button id="Q" onClick={() => audioElements.Q && audioElements.Q.play()}>Q</button>
-          <button id="W" onClick={() => audioElements.W && audioElements.W.play()}>W</button>
-          <button id="E" onClick={() => audioElements.E && audioElements.E.play()}>E</button>
-        </div>
-        <div>
-          <button id="A" onClick={() => audioElements.A && audioElements.A.play()}>A</button>
-          <button id="S" onClick={() => audioElements.S && audioElements.S.play()}>S</button>
-          <button id="D" onClick={() => audioElements.D && audioElements.D.play()}>D</button>
-        </div>
-        <div>
-          <button id="Z" onClick={() => audioElements.Z && audioElements.Z.play()}>Z</button>
-          <button id="X" onClick={() => audioElements.X && audioElements.X.play()}>X</button>
-          <button id="C" onClick={() => audioElements.C && audioElements.C.play()}>C</button>
-        </div>
+    <button className="drum-button" id={id} onClick={playSound}>
+      {id}
+      <audio ref={audioRef} src={audioSrc}></audio>
+    </button>
+  );
+};
+
+const Drumpad: React.FC = () => {
+  const buttonsData: DrumButtonProps[] = [
+    { id: 'Q', audioSrc: './audio/Q.mp3' },
+    { id: 'W', audioSrc: './audio/W.mp3' },
+    { id: 'E', audioSrc: './audio/E.mp3' },
+    { id: 'A', audioSrc: './audio/A.mp3' },
+    { id: 'S', audioSrc: './audio/S.mp3' },
+    { id: 'D', audioSrc: './audio/D.mp3' },
+    { id: 'Z', audioSrc: './audio/Z.mp3' },
+    { id: 'X', audioSrc: './audio/X.mp3' },
+    { id: 'C', audioSrc: './audio/C.mp3' },
+  ];
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      const buttonId = e.key.toUpperCase();
+      const button = document.getElementById(buttonId);
+      if (button) {
+        button.click();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, []);
+
+  return (
+    <div className="drumpad-container">
+      <div id="display" className="drumpad-display">
+        {buttonsData.map((button) => (
+          <DrumButton key={button.id} id={button.id} audioSrc={button.audioSrc} />
+        ))}
       </div>
     </div>
   );
