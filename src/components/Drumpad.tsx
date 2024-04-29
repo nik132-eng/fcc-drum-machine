@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import './Drumpad.css'; // Import CSS file for styling
+import React, { useEffect, useRef } from 'react';
+import './Drumpad.css'; 
 
 interface DrumButtonProps {
   id: string;
